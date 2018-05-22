@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>块级元素清除浮动</title>
+
+</head>
+
+<body>
+    <div class="out">
+        <div class="clear">
+            <img src="./vscodeback2.jpg" alt="back">
+        </div>
+    </div>
+    <div>
+        <span>this is world</span>
+        <table class="in">
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+            </tr>
+        </table>
+    </div>
+</body>
+<style>
+    .in{
+        width:100px;
+        display: inline-table;
+    }
+    .out {
+        border: 2px red solid;
+    }
+
+    .clear {
+        float: left;
+    }
+
+    .out:after {
+        content: '';
+        display: block;
+        clear: both;
+    }
+</style>
+
+</html>
