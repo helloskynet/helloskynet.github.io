@@ -42,8 +42,21 @@ width的默认值为auto  它包含了一下四种不同宽度表现
 
 >（4）超出容器限制  除非有明确的width限制否则上面三种都不会主动超过父级容器的限制的，，但是存在特殊情况 例如内容很长的连续英文或数字或者内联元素被设置了，white-space：nowrap
 
+* 正常流宽度  
 当给元素设置 display:block 的时候就无需再去指定width为100%了
+* 格式化宽度   
+格式化宽度仅出现在“绝对定位模型中”，也就是position为absolute或者fixed的元素中，宽度一般有内部尺寸决定，
 
+对于非替换元素当left/right或者top/bottom同时存在的时候，表现为格式化宽度，其宽度大小相对于最近的具有定位特性的（position不是static）的祖先元素计算
+```css
+div{
+    position:absolute;
+    left:20px;
+    right:20px;
+}
+```
+假设该div最近的具有定位特性的元素宽度为1000px则这个元素的宽度为 960px   
+margin、border、padding、content同样会自动水平分配
 
 
 
