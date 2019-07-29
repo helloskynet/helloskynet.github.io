@@ -99,7 +99,7 @@ git log -- <fileName>  按文件名
 > 注意：^ 字符是windows的cmd.exe 中的元字符。windows下使用HEAD^可能会报错  
 > fatal: ambiguous argument 'HEAD  
 > ': unknown revision or path not in the working tree.  
-> 这时要使用HEAD"^"或者"HEAD^"，来避免它。
+> 这时要使用HEAD"\^"或者"HEAD\^"，来避免它。
 
 例如
 
@@ -546,9 +546,12 @@ git push origin :refs/tags/< tagName>
 
 ## git配置信息
 
-使用配置给git命令添加缩写
+```cmd
 // 禁止 git 自动将LF转换为CRLF
 git config --global core.autocrlf false
+```
+
+使用配置给git命令添加缩写
 
 ```cmd
 git config --global alias.st status
@@ -568,3 +571,70 @@ git config --global -l
 
 误操作的时候试试
 git XXX --abort
+
+## git报错记录
+
+### Your local changes to the following files would be overwritten by merge
+
+git 执行一些命令的时候出现如下错误
+
+```cmd
+error: Your local changes to the following files would be overwritten by merge:
+// 下面的内容有的命令有,有的没有,但是并不影响，
+Please commit your changes or stash them before you merge.
+```
+
+错误原因：你当前执行的命令会覆盖掉工作区或者缓存区的未提交到版本库的修改，导致工作区缓存区的修改丢失，所以git拒绝了你的操作。
+
+解决方法：
+
+1. 使用stash存储下当前的工作区和缓存区，执行完要执行的命令后，再从stash恢复。
+
+1. 提交当前的工作区和缓存区的内容到本地版本库，然后再执行命令。
+
+1. 放弃工作区和缓存区的修改，
+
+  >放弃工作区和缓存区的修改，由于还没有提交到版本库是不会有记录的，恢复可能不大, 慎用!!!
+---
+
+方法有：  
+  3.1. git reset 具体使用查看下这个命令的介绍。  
+  3.2. 执行命令的时候试试 --hard 或者 -f 参数。  
+
+---
+
+### LF will be replaced by CRLF in xxxxxxxxx
+
+```cmd
+warning: LF will be replaced by CRLF in xxxxxxxxxx
+```
+
+警告原因：本地的文件使用的是LF 作为换行符，windows（其它不晓得）下git的默认配置会有一个 autocrlf，即自动把LF转换为CRLF。
+
+影响：如果有的人本地是LF有的人是CRLF，有的人自动转换有人不转换。最终有的人提交的时候会发现几乎所有的文件都有修改提示，而实际上只是换行符发生了变化而已。
+
+解决方法：修改配置，建议，对同一个库提交代码的所有人应该统一配置。提交的时候使用统一的换行符号。
+
+```cmd
+git config –global core.autocrlf false  // 关闭自动转换为crlf
+```
+
+---
+
+### fatal: ambiguous argument 'HEAD
+
+```cmd
+f:\test\liu\gitskills>git reset HEAD^
+More?
+More?
+fatal: ambiguous argument 'HEAD
+': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'
+```
+
+原因：^ 是windows下cmd.exe的元字符，导致windows对命令的解析出现了问题。
+
+解决方法：
+
+执行命令的时候 使用HEAD"^"、"HEAD^"、HEAD~、commit id等等。
