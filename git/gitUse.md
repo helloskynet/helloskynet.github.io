@@ -99,7 +99,7 @@ git log -- <fileName>  按文件名
 > 注意：^ 字符是windows的cmd.exe 中的元字符。windows下使用HEAD^可能会报错  
 > fatal: ambiguous argument 'HEAD  
 > ': unknown revision or path not in the working tree.  
-> 这时要使用HEAD"\^"或者"HEAD\^"，来避免它。
+> 这时要使用HEAD"^"或者"HEAD^"，来避免它。
 
 例如
 
