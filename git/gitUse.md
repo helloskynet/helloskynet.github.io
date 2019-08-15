@@ -638,3 +638,7 @@ Use '--' to separate paths from revisions, like this:
 解决方法：
 
 执行命令的时候 使用HEAD"^"、"HEAD^"、HEAD~、commit id等等。
+
+## 上面的都是瞎扯试试
+
+[Github Desktop](https://desktop.github.com/)
