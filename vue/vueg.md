@@ -385,8 +385,304 @@ todo 更多关于 webpack-dev-server
 
 2. 使用\*.vue 文件 单文件组件
 
+   2.1 添加一个 \*.vue 单文件组件并在 index.js 中使用。
+
+   ```html
+   <!-- App.vue -->
+   <template>
+     <!--  -->
+     <div class="container">
+       {{ temp }}
+     </div>
+   </template>
+
+   <script>
+     export default {
+       data() {
+         return {
+           temp: "hello world"
+         };
+       }
+     };
+   </script>
+
+   <style scoped lang="scss"></style>
+   ```
+
+   ```javascript
+   // index.js
+   import Vue from "vue";
+   import App from "./App";
+
+   new Vue({
+     el: "#app",
+     render: h => h(App)
+   });
+   ```
+
    2.1 vue-loader
 
-   &emsp;&emsp;webpack 只能处理 \*.js 和 \*.json 其它类型的文件都需要使用 loader。所以要使用单文件组件首先要，安装 vue-loader。
+   &emsp;&emsp;webpack 只能处理 \*.js 和 \*.json 其它类型的文件都需要使用 loader。所以要使用 vue 的单文件组件首先要安装 vue-loader。
 
    > npm i vue-loader -D
+
+   安装之后，在 webapck 的配置文件 webpack.config.js 中添加。
+
+   ```js
+   // webpack.config.js
+    ...
+    module: {
+      rules: [
+        {
+          test: /\.vue$/,
+          loader: "vue-loader"
+        }
+      ]
+   },
+   ...
+   ```
+
+   来使用 vue-loader
+
+   2.2 vueLoaderPlugin
+
+   安装之后要在 webpack 的配置里面，添加 vueLoaderPlugin，它的作用基本可以理解为，把 vue-loader 加载进来的文件，将其中的代码分类交给不同的 loader 或者插件处理。例如 script 标签中的代码，交给 js 相关的 loader 以及插件。template 类的交给模板相关的插件。
+
+   ```js
+   ...
+   const VueLoaderPlugin = require("vue-loader/lib/plugin");
+    ...
+    plugins: [
+    ...
+    new VueLoaderPlugin(),
+    ...
+    ]
+    ...
+
+   ```
+
+   如果不引入，运行 webpack 的时候会报如下错误
+
+   ```cmd
+
+    ERROR in ./src/App.vue
+    Module Error (from ./node_modules/vue-loader/lib/index.js):
+    vue-loader was used without the corresponding plugin. Make sure to include VueLoaderPlugin in your webpack config.
+    @ ./src/index.js 2:0-24 6:17-20
+
+    ERROR in ./src/App.vue?vue&type=template&id=7ba5bd90&scoped=true& 2:0
+    Module parse failed: Unexpected token (2:0)
+    File was processed with these loaders:
+    * ./node_modules/vue-loader/lib/index.js
+    You may need an additional loader to handle the result of these loaders.
+    |
+    > <!--  -->
+    | <div class="container">
+    |   {{temp}}
+    @ ./src/App.vue 1:0-94 10:2-8 11:2-17
+    @ ./src/index.js
+   ```
+
+   从错误提示中可以看出，是缺少了 vue-loader 所对应的插件 VueLoaderPlugin 导致的。添加上就可以了。
+
+   2.3 vue-template-compiler
+
+   &emsp;&emsp;之前我们说过 webpack，只支持 JavaScript 和 json 文件。其余的文件类型都需要相应的插件来处理。vueLoaderPlugin 将 vue 的单文件组件中的代码，分类交给了相应的 webpack 处理程序。webpack 处理了 script 标签中的代码，template 标签中的代码就需要我们安装 vue-template-compiler 来处理了。
+
+   安装 vue-template-compiler
+
+   `npm i vue-template-compiler -D`
+
+   如果没有安装 vue-template-compiler 就启动 webpack 会报如下错误。
+
+   ```cmd
+   ERROR in ./src/App.vue
+   Module Error (from ./node_modules/vue-loader/lib/index.js):
+   [vue-loader] vue-template-compiler must be installed as a peer dependency, or a compatible compiler implementation must be passed via options.
+   @ ./src/index.js 2:0-24 6:17-20
+
+   ERROR in ./src/App.vue
+   Module build failed (from ./node_modules/vue-loader/lib/index.js):
+   TypeError: Cannot read property 'parseComponent' of undefined
+       at parse (F:\vscode\vuewebpack\node_modules\@vue\component-compiler-utils\dist\parse.js:14:23)
+       at Object.module.exports (F:\vscode\vuewebpack\node_modules\vue-loader\lib\index.js:67:22)
+   @ ./src/index.js 2:0-24 6:17-20
+   Child html-webpack-plugin for "index.html":
+   ```
+
+   从错误中可以看到，必须安装 vue-template-compiler.
+
+   此时如果我们启动 webpack，就可以正常的编译了。
+
+   2.4 style 相关的 loader
+
+   vue-loader 和它的插件，将 vue 文件中的代码分类，交给了不同的处理程序。template 中的交给了，vue-template-compiler,script 中的交给了 webpack 自身的处理程序。我们没有安装和 style 相关的 loader 为什么没有报错呢，这是因为此时虽然存在 style 标签。但是标签内容是空的。而在 vue 文件组件中 style 并不是必须的。所以没有报错，如果我们向 style 标签中添加一些代码。再去运行 webpack 就会报错了。
+
+   将 App.vue 修改为：
+
+   ```html
+   <!-- App.vue -->
+   ....
+   <style scoped lang="scss">
+     .container {
+       background: blue;
+     }
+   </style>
+   ```
+
+   如果此时启动 webapck，报错如下
+
+   ```cmd
+   ERROR in ./src/App.vue?vue&type=style&index=0&id=7ba5bd90&scoped=true&lang=scss& (./node_modules/vue-loader/lib??vue-loader-options!./src/App.vue?vue&type=style&index=0&id=7ba5bd90&scoped=true&lang=scss&) 19:0
+   Module parse failed: Unexpected token (19:0)
+   File was processed with these loaders:
+   * ./node_modules/vue-loader/lib/index.js
+   You may need an additional loader to handle the result of these loaders.
+   |
+   |
+   > .container {
+   |   background: blue;
+   | }
+   @ ./src/App.vue?vue&type=style&index=0&id=7ba5bd90&scoped=true&lang=scss& 1:0-148 1:164-167 1:169-314 1:169-314
+   @ ./src/App.vue
+   @ ./src/index.js
+   ```
+
+   安装插件，
+
+   `npm i style-loader css-loader -D`
+
+   由于我们在 style 中指定了语言为 scss 所以需要再安装
+   `npm i sass-loader node-sass -D`  
+   来处理 scss。如果指定了其它语言要安装对应的 loader 即可。
+
+   sass-loader 是将 sass 代码加载进来并调用 node-sass 进行处理，node-sass 将 scss 代码编译成 css 代码。 css-loader 是处理 css 代码中的 url、以及@import 语法。style-loader 则通过 style 标签将 css 插入到 DOM 中。
+
+   由上面的每个 loader 的作用判断，在 webpack 配置文件 webpack.config.js 中添加。loader 调用顺序从右至左，从下到上。
+
+   ```js
+   ...
+   module:{
+     rules:[
+       ...
+      {
+        test: /\.scss$/,
+        loaders: ["style-loader", "css-loader", "sass-loader"]
+      },
+      ...
+     ]
+   }
+   ```
+
+   此时在启动 webpack 即可正常编译了。
+
+   2.5 url-loader
+
+   当我们在 css 中使用的图片的时候，需要使用 url-loader 来处理它。
+
+   例如
+
+   ```html
+   <!-- App.vue -->
+   ...
+   <style scoped lang="scss">
+     .container {
+       height: 100px;
+       border: 1px solid blue;
+       background: url("./background.jpg");
+     }
+   </style>
+   ```
+
+   此时如果直接启动 webapck，就会报错了。
+
+   安装
+
+   `npm i url-loader -D`
+
+   修改 webpack.config.js
+
+   ```js
+   // webpack.config.js
+   ...
+   module{
+     rules;[
+       ...
+       {
+        test: /\.jpg$/,  // 其他的类型按需要添加。例如 /\.(jpg|png|gif)/ 等等
+        loader: "url-loader"
+       }
+     ]
+   },
+    ...
+   ```
+
+   todo url-loader 具体使用。
+
+## babel
+
+webpack 能对 JavaScript 进行处理，只是压缩等操作。如果我们需要使用 ES6、ES7 等新的语法，就需要使用 babel 了。babel 将其编译后使得不支持 js 新特性的环境也能使用 js 新特性了。
+
+> 基于 babel 7.4 之后的版本
+
+1.  在 index.js 文件夹中代码用于测试。
+
+    ```js
+    // index.js
+    ...
+    function test() {
+      new Promise(resolve => {
+        setTimeout(() => {
+          console.log("hello world");
+          resolve();
+        }, 1000);
+      });
+    }
+
+    test();
+
+    ```
+
+    如果此时运行 webpack 查看打包结果，会看到 箭头函数 Promise 都会原样出现在打包结果里面。
+
+    我们用不支持这两个语法的 ie 浏览器来打开页面。会在控制台看到各种报错。
+
+2.  安装相关包
+
+    `npm i babel-loader @babel/core @babel/preset-env -D`
+
+    babel-loader 加载 js 文件， @babel/core 是 babel 核心包， @babel/preset-env 是配置。
+
+    修改 webpack.config.js
+
+    ```js
+    // webpack.config.js
+    ....
+    module: {
+       rules: [
+         {
+           test: /\.js/,
+           loader: "babel-loader"
+         }
+         ...
+         ]
+      }
+    ....
+    ```
+
+    此时我们只是引入了 babel-loader，还需要对 babel-loader 进行配置，要告诉 babel 你需要生成什么样的结果。
+
+    对 babel 配置，有四种方法。
+
+        1. 项目根目录添加 .babelrc 文件
+        2. 配置添加在 webpack.config.js 中
+        3. 添加在package.json中
+        4. 项目根目录添加 babel.config.js
+
+
+    todo babel
+
+webpack 只能处理
+
+
+https://www.cnblogs.com/sea-breeze/p/10490672.html
