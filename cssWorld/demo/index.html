@@ -25,8 +25,23 @@
             </tr>
         </table>
     </div>
+
+    <div class="liu">
+        <img alt="this is me ">
+    </div>
 </body>
 <style>
+    .liu>img::after{
+        content:attr(alt);
+        position: absolute;
+        bottom:0;
+        width:100%;
+        background-color: rgba(0,0,0,.5);
+        transition: transform .2s;
+    }
+    .liu>img:hover::after{
+        transform: translateY(0)
+    }
     .in{
         width:100px;
         display: inline-table;

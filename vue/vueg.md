@@ -686,3 +686,12 @@ webpack 只能处理
 
 
 https://www.cnblogs.com/sea-breeze/p/10490672.html
+
+eslint 优先级顺序
+
+.eslintrc.js
+.eslintrc.yaml
+.eslintrc.yml
+.eslintrc.json
+.eslintrc （废弃）
+package.json
