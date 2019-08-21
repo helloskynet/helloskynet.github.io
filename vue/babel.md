@@ -1,5 +1,4 @@
 @[toc](Babel)
-@[toc](Babel)
 
 > babel（巴别塔），圣经里面上帝为了阻止人们建造巴别塔（通天之塔），上帝让人类说不同的语言，使人类相互之间不能沟通，计划因此失败，人类自此各散东西。
 
@@ -22,7 +21,7 @@ babel-runtime|@babel/runtime
 | ------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | babel-loader                    | webpack 的插件加载代码用。                                                            | webpack 使用                                                                                                                                                                       |
 | @babel/core                     | babel 的核心，编译器，提供转换的 API。                                                | 转换语法                                                                                                                                                                           |
-| core-js                         | 给低版本浏览器提供接口的库。分为 core-js@2 和@core-js@3                               |                                                                                                 |
+| core-js                         | 给低版本浏览器提供接口的库。分为 core-js@2 和@core-js@3                               |                                                                                                                                                                                    |
 | regenerator-runtime             | 可以理解为：在代码 import 包或者 require 包的时候，为其生成唯一标识防止污染全局变量。 |
 | @babel/polyfill                 | 给低版本的浏览器提供接口库 ，本质是由 core-js 和 regenerator-runtime 组成的。         | 7.4 弃用                                                                                                                                                                           |
 | @babel/helpers                  | 定义了一些处理新的语法关键字的辅助函数，把需要的辅助函数当做一个模块引入代码          | @babel/core 在处理的时候也会向代码中插入帮助函数，它的处理方法是在每个文件中都插入相应的帮助函数， @babel/helpers 则是把帮助函数当做模块引入，每个文件只需要调用这个模块就可以了。 |
@@ -109,7 +108,7 @@ babel-runtime|@babel/runtime
 
 ### polyfill 方式
 
-babel-polyfill 已经被废弃，但是 core-js 和 regenerator-runtime 组合使用的作用类似。
+babel-polyfill 已经被废弃，但是 core-js 和它的作用类似。
 
 全部引入`import "core-js/stable";`，也可以按照需要使用什么引入什么。
 
@@ -162,7 +161,7 @@ corejs 设置不同参数的时候注意安装对应的包。如果 useBuiltIns 
 | 2(默认值)   | npm i core-js@2 -S |
 | 3           | npm i core-js@3 -S |
 
- 2 和 3 的区别有点闹不明白。
+2 和 3 的区别有点闹不明白。
 
 ### transform-runtime 方式使用
 
@@ -198,3 +197,55 @@ corejs 设置不同参数的时候需要安装对应的包。
 | 3             | 在 2 的基础上增加支持实例方法 如 [].includes()                        | npm i @babel/runtime-corejs3 -S |
 
 两种使用方式的区别在于是否污染全局环境。不能同时使用。
+
+## 在 VUE 中的使用
+
+&emsp;&emsp;在 VUE 中推荐使用 polyfill 的方式。因为以 transform-runtime 方式使用的时候，默认情况下只会转换我们的代码，不会给 node_module 中的库添加垫片什么的，如果想让它转换 mode_module 中的代码还需要使用 babel.config.js 来特殊配置，而且转换的结果还不一定能够使用。node_module 中的库可能会自带垫片，但是如果你想使用功能 vuex, 浏览器控制台就会报错，提示需要我们提供全局的垫片，因为 vuex 没有自带垫片。
+
+&emsp;&emsp;我们自己开发 web 程序，目前最省事就是进行如下配置，把所有的 polyfill 引入这样也就不用担心缺少什么东西了。到了后面有时间如果想优化打包，比如减少打包结果的体积什么的，可以再进行优化。前期开发直接全部引入，不要用什么再引入什么不然来回修改显得有点麻烦。
+
+要安装的包`npm i @babel/core @babel/preset-env babel-loader -D`和`npm i core-js@3 -S`;
+
+在文件入口 index.js 开头引入 core-js
+
+```js
+// index.js
+import 'core-js/stable`
+```
+
+或者也可以在 webpack 打包配置中增加 core-js;
+
+```js
+// webpack.config.js
+...
+module.exports = {
+  ...
+  entry: {
+    main: ["core-js/stable", "./src/index.js"]
+  },
+  ...
+}
+
+```
+
+babel 的配置文件
+
+```json
+// .babelrc
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        // target 要根据自己的情况进行配置
+        "targets": {
+          "chrome": "68",
+          "ie": 10
+        },
+        "useBuiltIns": "entry",
+        "corejs": 3
+      }
+    ]
+  ]
+}
+```
