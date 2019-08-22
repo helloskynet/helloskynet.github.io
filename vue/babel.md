@@ -10,7 +10,7 @@ JavaScript 的 babel 则是为了把各个版本的 JavaScript 翻译成同一�
 
 对照表
 7.0 之前|7.0 之后|备注
--|-|-
+|-|-|-
 babel-core|@babel/core
 babel-polyfill|@babel/polyfill|7.4 之后弃用，使用其它的代替
 babel-runtime|@babel/runtime
@@ -144,11 +144,12 @@ npm i @babel/core @babel/preset-env babel-loader -D
 target： 转换结果的目标，代码最终的执行环境，根据目标环境判断是否需要对语法进行转换，对那些语法进行转换例如箭头函数、class 语法等等。
 
 useBuiltIns: false | "entry" | "usage"
-选项|描述
--|-
-false （默认值）| 此时 corejs 属性无效，不引入垫片，仅仅根据 target 属性判断后转换相应的语法，
-"entry"| 在入口处手动引入垫片，
-"usage"| 自动检测文件中使用的需要引入垫片的地方并自动引入对应的垫片。（官方推荐）
+
+| 选项             | 描述                                                                         |
+| ---------------- | ---------------------------------------------------------------------------- |
+| false （默认值） | 此时 corejs 属性无效，不引入垫片，仅仅根据 target 属性判断后转换相应的语法， |
+| "entry"          | 在入口处手动引入垫片，                                                       |
+| "usage"          | 自动检测文件中使用的需要引入垫片的地方并自动引入对应的垫片。（官方推荐）     |
 
 corejs: 2| 3
 
